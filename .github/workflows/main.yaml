@@ -25,5 +25,8 @@ jobs:
     needs:
       - build
     steps:
+      - name: checkout
+        uses: actions/checkout@main
+
       - name: test
         run: cargo test --release
