@@ -247,4 +247,8 @@ impl FaceDetectionModelOutput {
         }
         res
     }
+
+    pub fn face_box(&self) -> &Box2D<f32> {
+        &self.face
+    }
 }

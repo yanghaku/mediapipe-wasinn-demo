@@ -1,7 +1,7 @@
 <div align="center">
   <h1><code>mediapipe-wasinn-demo</code></h1>
   <h2><strong>A Rust library crate for mediapipe models for WasmEdge NN</strong></h2>
-  <p>This project is a demo for <a href="https://github.com/WasmEdge/WasmEdge/issues/2229"> Issue 2229</a> and <a href="https://github.com/WasmEdge/WasmEdge/discussions/2230">Discussion 2230</a> in <a href="https://github.com/WasmEdge/WasmEdge">WasmEdge</a> )</p>
+  <p>( This project is a demo for <a href="https://github.com/WasmEdge/WasmEdge/issues/2229"> Issue 2229</a> and <a href="https://github.com/WasmEdge/WasmEdge/discussions/2230">Discussion 2230</a> in <a href="https://github.com/WasmEdge/WasmEdge">WasmEdge</a> )</p>
   <p>
     <a href="https://github.com/yanghaku/mediapipe-wasinn-demo/actions?query=workflow%3ACI">
       <img src="https://github.com/yanghaku/mediapipe-wasinn-demo/workflows/CI/badge.svg" alt="CI status"/>
@@ -46,10 +46,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let face_detection = FaceDetection::new(FaceDetectionModels::ShortRange, 0.9)?;
 
     // process a image and get output
-    let mut results = face_detection.process(&img)?;
-
-    // sort using score with ascending order
-    results.sort();
+    let results = face_detection.process(&img)?;
 
     // print the results
     println!("The number of results: {}", results.len());
@@ -57,7 +54,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("{}", r);
     }
 
-    // todo: process the result and draw to image
+    // ......
+
     Ok(())
 }
 ```
@@ -94,20 +92,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 * This crate example's results (with no nms now):
 
 ```console
-$ cargo run --release --example face_detection -- ./assets/test.jpg
-    Finished release [optimized] target(s) in 0.00s
-     Running `/home/yb/code/tests/mediapipe-wasinn-demo/./scripts/wasmedge-runner.sh target/wasm32-wasi/release/examples/face_detection.wasm ./assets/test.jpg`
+yb$ cargo run --release --example face_detection -- ./assets/test.jpg ./assets/test_result.jpg
+    Finished release [optimized] target(s) in 0.01s
+     Running `/home/yb/code/tests/mediapipe-wasinn-demo/./scripts/wasmedge-runner.sh target/wasm32-wasi/release/examples/face_detection.wasm ./assets/test.jpg ./assets/test_result.jpg`
 The number of results: 2
-FaceDetectionModelOutput: {
-	Score: 0.9378273
-	Face bound box: { xmin: 0.2515205, ymin: 0.33453536, width: 0.4625408, height: 0.46251416 }
-	Left eye: (0.6041109, 0.4593312)
-	Right eye: (0.41474357, 0.47974306)
-	Nose tip: (0.5432431, 0.5890332)
-	Mouse center: (0.5382308, 0.67589974)
-	Left eye tragion: (0.27871802, 0.5189266)
-	Right eye tragion: (0.6761436, 0.4834574)
-}
 FaceDetectionModelOutput: {
 	Score: 0.9446747
 	Face bound box: { xmin: 0.24396126, ymin: 0.3258748, width: 0.47893, height: 0.47885394 }
@@ -118,9 +106,22 @@ FaceDetectionModelOutput: {
 	Left eye tragion: (0.2716728, 0.514828)
 	Right eye tragion: (0.6790835, 0.48192626)
 }
+FaceDetectionModelOutput: {
+	Score: 0.9378273
+	Face bound box: { xmin: 0.2515205, ymin: 0.33453536, width: 0.4625408, height: 0.46251416 }
+	Left eye: (0.6041109, 0.4593312)
+	Right eye: (0.41474357, 0.47974306)
+	Nose tip: (0.5432431, 0.5890332)
+	Mouse center: (0.5382308, 0.67589974)
+	Left eye tragion: (0.27871802, 0.5189266)
+	Right eye tragion: (0.6761436, 0.4834574)
+}
+Draw the image success! Save to ./assets/test_result.jpg
 ```
 
-* The result of ```mediapipe-python```:
+And this is the image we draw: ![](./assets/test_result.jpg)
+
+* The result of ```mediapipe-python``` (*for comparison*):
 
 ```console
 $ python3
@@ -170,6 +171,8 @@ location_data {
 ]
 >>> 
 ```
+
+Compare with the standard output from mediapipe-python, we can see that the result is correct.
 
 ## Related Links
 

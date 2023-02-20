@@ -24,4 +24,4 @@ jobs:
         run: cargo test --release -- --nocapture
 
       - name: run-examples
-        run: cargo run --release --example face_detection -- ./assets/test.jpg
+        run: cargo run --release --example face_detection -- ./assets/test.jpg ./assets/test_result.jpg

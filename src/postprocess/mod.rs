@@ -1,4 +1,5 @@
 mod detection;
+pub mod draw_utils;
 pub mod ops;
 mod ssd_anchors_generator;
 
