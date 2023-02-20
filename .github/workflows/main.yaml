@@ -21,6 +21,7 @@ jobs:
         run: ./scripts/wasmedge-init.sh
 
   cargo-test:
+    runs-on: ubuntu-latest
     needs:
       - build
     steps:
