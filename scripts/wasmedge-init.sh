@@ -17,6 +17,7 @@ wasmedge_with_nn_init() {
   tar -zxf WasmEdge-plugin-wasi_nn-tensorflowlite-${WASMEDGE_VERSION}-manylinux2014_x86_64.tar.gz
 
   mv WasmEdge-${WASMEDGE_VERSION}-Linux/bin/* ${WASMEDGE_BIN_PATH}/
+  mkdir -p ${WASMEDGE_PLUGIN_PATH}/
   mv WasmEdge-${WASMEDGE_VERSION}-Linux/lib64/wasmedge/* ${WASMEDGE_PLUGIN_PATH}/
   rmdir WasmEdge-${WASMEDGE_VERSION}-Linux/lib64/wasmedge # avoid mv fail when /lib/wasmedge exists
   mv WasmEdge-${WASMEDGE_VERSION}-Linux/lib64/* ${WASMEDGE_LIB_PATH}/
