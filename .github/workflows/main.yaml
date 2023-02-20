@@ -29,4 +29,4 @@ jobs:
         uses: actions/checkout@main
 
       - name: test
-        run: cargo test --release
+        run: rustup target add wasm32-wasi && cargo test --release -- --nocapture
