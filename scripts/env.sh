@@ -1,6 +1,6 @@
 #!/bin/bash
 
-WASMEDGE_DEFAULT_PATH=/usr/local # use /usr/local as default wasmedge install path
+WASMEDGE_DEFAULT_PATH=~/.wasmedge
 
 # if install wasmedge in custom path, please set the variable `WASMEDGE_PATH` before use the env.sh
 

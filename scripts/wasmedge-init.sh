@@ -43,4 +43,4 @@ wasmedge_lib_env_init() {
 
 wasmedge_with_nn_init
 wasmedge_tflite_deps_init
-wasmedge_lib_env_init
+# wasmedge_lib_env_init
