@@ -99,10 +99,7 @@ impl InferenceGraphBuilder {
     // todo: new interface to support array input for ```load```
 
     #[inline]
-    pub fn build_from_bytes(
-        self,
-        bytes: impl AsRef<[u8]>,
-    ) -> Result<InferenceGraph, InferenceError> {
+    pub fn build_from_bytes(self, bytes: Vec<u8>) -> Result<InferenceGraph, InferenceError> {
         let build_info = self.clone();
         let graph_handle =
             unsafe { wasi_nn::load(&[bytes.as_ref()], self.encoding.into(), self.device.into()) }
@@ -110,6 +107,7 @@ impl InferenceGraphBuilder {
         Ok(InferenceGraph {
             build_info,
             graph_handle,
+            _graph_content: bytes,
         })
     }
 
@@ -126,6 +124,7 @@ impl InferenceGraphBuilder {
 pub struct InferenceGraph {
     build_info: InferenceGraphBuilder,
     graph_handle: wasi_nn::Graph,
+    _graph_content: Vec<u8>,
 }
 
 impl InferenceGraph {
@@ -163,14 +162,14 @@ impl Drop for InferenceGraph {
 ///
 /// #### load module and do inference
 /// ```
-/// use mediapipe_wasinn_demo::inference::{InferenceGraphBuilder, InferenceTensor};
+/// use mediapipe_wasinn_demo::inference::{InferenceGraphBuilder, InferenceTensor, InferenceTensorDataLayout, InferenceTensorType};
 ///
 /// let path = "./module.tflite";
 /// let graph = InferenceGraphBuilder::default().build_from_file(path)?;
 /// let mut executor = graph.new_graph_executor()?;
-/// let input: InferenceTensor;
-/// executor.set_input(0, &input)?;
-/// executor.run()?;
+/// // generate input tensor
+/// let input = InferenceTensor::new(InferenceTensorType::F32,InferenceTensorDataLayout::NHWC,Vec::default(),Vec::default());
+/// executor.set_inputs_and_run([(0, input)])?;
 /// let (output, output_size) = executor.get_output(0, 1024)?;
 /// ```
 pub struct InferenceGraphExecutor<'a> {
@@ -184,30 +183,30 @@ impl<'a> InferenceGraphExecutor<'a> {
         self.graph
     }
 
-    pub fn set_inputs(
+    pub fn set_inputs_and_run(
         &mut self,
-        inputs: impl AsRef<[(u32, &'a InferenceTensor<'a>)]>,
+        inputs: impl AsRef<[(u32, InferenceTensor<'a>)]>,
     ) -> Result<(), InferenceError> {
-        for (index, input) in inputs.as_ref() {
-            self.set_input(*index, *input)?
+        for (ref index, ref input) in inputs.as_ref() {
+            let (shape, data) = input.tensor_data_ref();
+            let tensor = wasi_nn::Tensor {
+                dimensions: shape,
+                type_: input.tp().into(),
+                data,
+            };
+            unsafe { wasi_nn::set_input(self.execute_ctx, *index, tensor) }
+                .map_err(|e| InferenceError::from(e))?;
         }
-        Ok(())
-    }
 
-    #[inline]
-    pub fn set_input(&mut self, index: u32, input: &InferenceTensor) -> Result<(), InferenceError> {
-        let (shape, data) = input.tensor_data_ref();
-        let tensor = wasi_nn::Tensor {
-            dimensions: shape,
-            type_: input.tp().into(),
-            data,
-        };
-        unsafe { wasi_nn::set_input(self.execute_ctx, index, tensor) }
-            .map_err(|e| InferenceError::from(e))
+        let res = self.run();
+
+        // drop inputs after run
+        drop(inputs);
+        res
     }
 
     #[inline(always)]
-    pub fn run(&mut self) -> Result<(), InferenceError> {
+    fn run(&mut self) -> Result<(), InferenceError> {
         unsafe { wasi_nn::compute(self.execute_ctx) }.map_err(|e| InferenceError::from(e))
     }
 

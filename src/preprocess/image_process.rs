@@ -14,7 +14,7 @@ impl ToTensor for RgbImage {
 
         match data_layout {
             DataLayout::NHWC => {
-                let mut data = Vec::with_capacity((self.height() * self.width() * 3) as usize);
+                let mut data = Vec::with_capacity((self.height() * self.width() * 3 * 4) as usize);
                 for p in self.as_ref() {
                     let f = (*p as f32) * MULTIPLY - 1.0f32;
                     for b in f.to_ne_bytes() {

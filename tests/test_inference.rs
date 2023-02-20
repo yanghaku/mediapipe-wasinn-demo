@@ -9,7 +9,7 @@ fn test_inference() {
     // prepare input
     let input = image::open(assets.join("test.jpg"))
         .unwrap()
-        .resize(128, 128, image::imageops::FilterType::Nearest)
+        .resize(128, 128, image::imageops::FilterType::Triangle)
         .to_rgb8()
         .to_tensor(InferenceTensorDataLayout::NHWC);
 
@@ -20,8 +20,7 @@ fn test_inference() {
     let mut graph_exec = graph.new_graph_executor().unwrap();
 
     // do inference
-    graph_exec.set_input(0, &input).unwrap();
-    graph_exec.run().unwrap();
+    graph_exec.set_inputs_and_run([(0, input)]).unwrap();
 
     const REGRESSORS_SIZE: u32 = 1 * 896 * 16;
     const SCORES_SIZE: u32 = 1 * 896 * 1;

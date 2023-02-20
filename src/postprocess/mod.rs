@@ -1,13 +1,25 @@
 mod detection;
 pub mod ops;
+mod ssd_anchors_generator;
 
 pub use detection::*;
+pub use ssd_anchors_generator::*;
 use std::fmt::Debug;
 
 #[derive(Debug, Clone)]
 pub struct Pointer2D<T: Debug + Clone> {
     pub x: T,
     pub y: T,
+}
+
+impl Pointer2D<f32> {
+    #[inline]
+    pub fn transform_with_anchor(self, anchor: &Anchor, x_scale: f32, y_scale: f32) -> Self {
+        Self {
+            x: self.x / x_scale * anchor.w + anchor.x_center,
+            y: self.y / y_scale * anchor.h + anchor.y_center,
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
